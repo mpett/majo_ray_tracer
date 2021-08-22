@@ -1,0 +1,3 @@
+https://stackoverflow.com/questions/8628015/ray-sphere-intersection-the-discriminant-is-wrong
+https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/
+https://en.wikipedia.org/wiki/Quadratic_equation
