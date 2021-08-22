@@ -1,0 +1,5 @@
+cl /EHsc file1.cpp
+
+cl /EHsc file1.cpp file2.cpp file3.cpp /link /out:program1.exe
+
+cl /W4 /EHsc file1.cpp file2.cpp file3.cpp /link /out:program1.exe
