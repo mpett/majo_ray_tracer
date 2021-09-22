@@ -5,6 +5,9 @@
 #include "sphere.h"
 #include "camera.h"
 #include "material.h"
+#include "moving_sphere.h"
+#include "aabb.h"
+#include "bvh.h"
  
 #include <iostream>
 
@@ -30,8 +33,8 @@ color ray_color(const ray& r, const hittable& world, int depth) {
 hittable_list random_scene() {
     hittable_list world;
 
-    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+    auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -45,8 +48,9 @@ hittable_list random_scene() {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    world.add(make_shared<sphere>(center, 0.2, sphere_material));
-
+                    auto center2 = center + vec3(0, random_double(0,.5), 0);
+                    world.add(make_shared<moving_sphere>(
+                        center, center2, 0.0, 1.0, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     //metal
                     auto albedo = color::random(0.5, 1);
@@ -77,14 +81,11 @@ hittable_list random_scene() {
 
 int main() {
 
-    
-    
     // Image
-    const auto aspect_ratio = 3.0 / 2.0;
-    const int image_width = 120;
-    const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 50;
-    const int max_depth = 50;
+    auto aspect_ratio = 16.0 / 9.0;
+    int image_width = 400;
+    int samples_per_pixel = 10;
+    const int max_depth = 5;
 
     // World
 
@@ -107,8 +108,10 @@ int main() {
     vec3 vup(0,1,0);
     auto dist_to_focus = 10.0;
     auto aperture = 0.1;
+    int image_height = static_cast<int>(image_width / aspect_ratio);
 
-    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+
+    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     // Render
 
