@@ -9,20 +9,26 @@ struct hit_record;
 
 class material {
     public:
+        virtual color emitted(double u, double v, const point3& p) const {
+            return color(0,0,0);
+        }
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
         ) const = 0;
+
+        public:
+            shared_ptr<texture> emit;
 };
 
 class lambertian : public material {
     public:
-        lambertian(const color& a) : albedo(make_shared<solid_color>(a)) {}
+        lambertian(const color& a) : albedo(make_shared<solid_color>(a)) {}                 // Set albedo to make_shared<solid_color>(a) to have albedo effect in our lambertian
         lambertian(shared_ptr<texture> a) : albedo(a) {}
 
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
         ) const override {
-            auto scatter_direction = rec.normal + random_unit_vector();
+            auto scatter_direction = rec.normal + random_unit_vector();                     // Scatter direction is decided from the object.record's normal + unit_vector
 
             // Catch degenerate scatter direction
             if (scatter_direction.near_zero()) {
@@ -30,7 +36,7 @@ class lambertian : public material {
             }
 
             scattered = ray(rec.p, scatter_direction, r_in.time());
-            attenuation = albedo->value(rec.u, rec.v, rec.p);
+            attenuation = albedo->value(rec.u, rec.v, rec.p);           // Attenuation gets the value that shared pointer albedo points at when combining (rec.u, rec.v, rec.p)
             return true;
         }
 
@@ -40,13 +46,13 @@ class lambertian : public material {
 
 class metal : public material {
     public:
-        metal(const color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
+        metal(const color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}             // Metal color + determinator 0 to 1 if we have fuzz. Set to 1 if no fuzziness applied
 
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
         ) const override {
             vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-            scattered = ray(rec.p, reflected + fuzz*random_in_unit_sphere(), r_in.time());
+            scattered = ray(rec.p, reflected + fuzz*random_in_unit_sphere(), r_in.time());      // Scattered = ray at rec.p with reflected + value of fuzz_unit_sphere == How much ray do scatter when we have fuzz
             attenuation = albedo;
             return (dot(scattered.direction(), rec.normal) > 0);
         }
@@ -58,13 +64,13 @@ class metal : public material {
 
 class dielectric : public material {
     public:
-        dielectric(double index_of_refraction) : ir(index_of_refraction) {}
+        dielectric(double index_of_refraction) : ir(index_of_refraction) {}                             // within dialecric function ser ir = index_of_refraction (n = ? for glass/water etc)
 
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
         ) const override {
             attenuation = color(1.0, 1.0, 1.0);
-            double refraction_ratio = rec.front_face ? (1.0/ir) : ir;
+            double refraction_ratio = rec.front_face ? (1.0/ir) : ir;                               // Refraction rate = rec.front_face true ? set to 1.0/ir else ir
 
             vec3 unit_direction = unit_vector(r_in.direction());
             double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
@@ -73,11 +79,11 @@ class dielectric : public material {
             bool cannot_refract = refraction_ratio * sin_theta > 1.0;
             vec3 direction;
 
-            if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double()) {
+            if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double()) {      // If not refract and having a positive reflectance then        
                 direction = reflect(unit_direction, rec.normal);
             }
             else {
-                direction = refract(unit_direction, rec.normal, refraction_ratio);
+                direction = refract(unit_direction, rec.normal, refraction_ratio);                   // If refract direction is decided from refract(unit_direction, rec.normal (of object), refraction ratio)
             }
 
             scattered = ray(rec.p, direction, r_in.time());
@@ -95,5 +101,21 @@ class dielectric : public material {
         }
 };
 
+class diffuse_light : public material {
+    public:
+        diffuse_light(shared_ptr<texture> a) : emit(a) {}
+        diffuse_light(color c) : emit(make_shared<solid_color>(c)) {}
+
+        virtual bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override {
+            return false;
+        }
+
+        virtual color emitted(double u, double v, const point3& p) const override {
+            return emit->value(u, v, p);
+        }
+
+    public:
+        shared_ptr<texture> emit;
+};
 
 #endif

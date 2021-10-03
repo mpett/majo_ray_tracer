@@ -6,7 +6,7 @@
 class perlin {
     public:
         perlin() {
-            ranvec = new vec3[point_count];
+            ranvec = new vec3[point_count];                 // Create an point_count amount of random vec and make them unit vec. These are then used for permutation in x, y, z.
             for (int i = 0; i < point_count; ++i) {
                 ranvec[i] = unit_vector(vec3::random(-1,1));
             }
@@ -24,7 +24,7 @@ class perlin {
         }
 
         double noise(const vec3& p) const {
-            auto u = p.x() - floor(p.x());
+            auto u = p.x() - floor(p.x());          // Set u as the value moved from selected point up to the floored value, eg for 13.02 set u to .02
             auto v = p.y() - floor(p.y());
             auto w = p.z() - floor(p.z());
 
@@ -34,7 +34,7 @@ class perlin {
 
             vec3 c[2][2][2];
 
-            for (int di = 0; di < 2; di++) {
+            for (int di = 0; di < 2; di++) {        // Make changes to delta x, y, z or as pit i, j, k.
                 for (int dj = 0; dj < 2; dj++) {
                     for (int dk = 0; dk < 2; dk++) {
                         c[di][dj][dk] = ranvec[
@@ -47,7 +47,7 @@ class perlin {
             return perlin_interp(c, u, v, w);
         }
 
-        double turb(const point3& p, int depth=7) const {
+        double turb(const point3& p, int depth=7) const {       // Deciding how much turbulence to have in noise 
             auto accum = 0.0;
             auto temp_p = p;
             auto weight = 1.0;
@@ -62,7 +62,7 @@ class perlin {
         }
 
         private:
-            static const int point_count = 256;
+            static const int point_count = 256;     // Enabling permutation of x,y,z to get noise
             vec3* ranvec;
             int* perm_x;
             int* perm_y;
@@ -79,10 +79,10 @@ class perlin {
                 return p;
             }
 
-            static void permute(int* p, int n) {
-                for (int i = n-1; i > 0; i--) {
-                    int target = random_int(0, i);
-                    int tmp = p[i];
+            static void permute(int* p, int n) {            // Send pointer to point + n
+                for (int i = n-1; i > 0; i--) { 
+                    int target = random_int(0, i);          
+                    int tmp = p[i];                         // Go through list and swap between p[i] and p[target] 
                     p[i] = p[target];
                     p[target] = tmp;
                 }
@@ -116,9 +116,9 @@ class perlin {
                                     * (k*ww + (1-k)*(1-ww))
                                     * dot(c[i][j][k], weight_v);
                         }
-                        return accum;
                     }
                 }
+                return accum;
             }
 };
 
