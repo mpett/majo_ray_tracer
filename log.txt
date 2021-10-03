@@ -1,0 +1,10 @@
+2021-09-17
+Har fixat cornellboxen och uppdaterat mainen så att man kan switcha mellan den olika objecten att skapa. Håller på att studera lite mer om vertical field-of-view eller vfov som det heter så att jag förstår hur man fixerar kameran för att ha en god vi över objecten vi skapar.
+
+Detta gör att man också kan animera bilder sedan genom att rotera kamera i stället för objectet och då ge en annan effekt. Ganska coolt ändå.
+
+Sade till i-Tech att jag ska hämta datorn nu i dag. Ska se om martin kan hänga på eller om han kommer att vara upptagen med flytt.
+
+Möjligen behöver jag dumpa den där hos honom. Behöver också tänka på vilken skärm jag ska ta med sedan i helgen. HP-skärmen kommer jag inte använda överhuvudtaget vad det verkar som så den är ett ganska straight forward pick imo.
+
+
