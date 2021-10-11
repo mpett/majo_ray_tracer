@@ -26,50 +26,19 @@ color ray_color(const ray& r, const color& background, const hittable& world, in
 
     ray scattered;
     color attenuation;
-    color emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-    double pdf;
+    color emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+    double pdf_val;
     color albedo;
-
-    if (!rec.mat_ptr->scatter(r, rec, albedo, scattered, pdf))
+    if (!rec.mat_ptr->scatter(r, rec, albedo, scattered, pdf_val))
         return emitted;
-
-    auto on_light = point3(random_double(213, 343), 554, random_double(227, 332));
-    auto to_light = on_light - rec.p;
-    auto distance_squared = to_light.length_squared();
-    to_light = unit_vector(to_light);
-
-    if (dot(to_light, rec.normal) < 0) {
-        return emitted;
-    }
-
-    double light_area = (343- 213) * (332-227);
-    auto light_cosine = fabs(to_light.y());
-    if (light_cosine < 0.000001) {
-        return emitted;
-    }
-
-    pdf = distance_squared / (light_cosine * light_area);
-    scattered = ray(rec.p, to_light, r.time());
+    cosine_pdf p(rec.normal);
+    scattered = ray(rec.p, p.generate(), r.time());
+    pdf_val = p.value(scattered.direction());
 
     return emitted
          + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered)
-                  * ray_color(scattered, background, world, depth-1) / pdf;
+                  * ray_color(scattered, background, world, depth-1) / pdf_val;
 }
-
-
-/*    if (world.hit(r, 0.001, infinity, rec)) {
-	ray scattered;
-	color attenuation;
-	if (rec.mat_ptr->scatter(r, rec, attenuation, scattered)){
-	    return attenuation * ray_color(scattered, world, depth-1);
-	}
-	return color(0,0,0);
- 
-
-    vec3 unit_direction = unit_vector(r.direction());
-    auto t = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
-} */
 
 hittable_list random_scene() {
     hittable_list world;
@@ -170,7 +139,8 @@ hittable_list cornell_box() {
 
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
-    objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
+    objects.add(make_shared<flip_face>(make_shared<xz_rect>(213, 343, 227, 332, 554, light)));
+//    objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));

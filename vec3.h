@@ -166,7 +166,7 @@ vec3 random_in_hemisphere(const vec3& normal) {
             return -in_unit_sphere;
     }
 
-inline vec3 random_cosine_direction() {
+/* inline vec3 random_cosine_direction() {
     auto r1 = random_double();
     auto r2 = random_double();
     auto z = sqrt(1-r2);
@@ -176,6 +176,6 @@ inline vec3 random_cosine_direction() {
     auto y = sin(phi)*sqrt(r2);
 
     return vec3(x, y, z);
-}
+} */
 
 #endif
