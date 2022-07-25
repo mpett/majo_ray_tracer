@@ -12,3 +12,7 @@ Om du ser detta kan du skicka iväg mail till teichohn@gmail.com eller adda min 
 Du hittar mig på Johnny Teichter. I annat fall ringer jag det nummer jag har på dig när jag har en mobil igen!
 
 Hoppas du har det bra!
+
+Haha. Nu har jag fått tag i dig. :D
+
+Vi kan nog ta bort det här sedan. :D
